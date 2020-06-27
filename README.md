@@ -1,6 +1,6 @@
 # CMES
 
-Solve simple differential equation using MES algorithm.
+Solve simple differential equation using finite elements method.
 
 Right now it's not possible to configure program with custom equations.
 
