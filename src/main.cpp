@@ -2,41 +2,45 @@
 #include <iomanip>
 #include <iostream>
 
+const double A = 1.0;
+const double F = 1.0;
+
+const double ALPHA0 = 1.0;
+const double BETA0 = 1.0;
+const double GAMMA0 = 1.0;
+
+const double ALPHA1 = 1.0;
+const double BETA1 = 1.0;
+const double GAMMA1 = 1.0;
+
+const int X0 = 0.0;
+const int X1 = 1.0;
+
+const int ELEMENTS = 4;
+
 using namespace std;
 
 int main(int argc, char* argv[])
 {
-    shared_ptr<func1d_t> a_func = make_shared<polynomial_t>(1.0);
-    shared_ptr<func1d_t> f_func = make_shared<polynomial_t>(-2.0);
-
-    double alpha0 = 0.0;
-    double beta0 = 1.0;
-    double gamma0 = 1.0;
-
-    double alpha1 = 1.0;
-    double beta1 = 0.0;
-    double gamma1 = 2.0;
-
-    int elements = 4;
-    double x0 = 0.0;
-    double x1 = 1.0;
+    shared_ptr<func1d_t> a_func = make_shared<polynomial_t>(A);
+    shared_ptr<func1d_t> f_func = make_shared<polynomial_t>(F);
 
     fem_t solver;
 
     solver.a_func(a_func);
     solver.f_func(f_func);
 
-    solver.alpha0(alpha0);
-    solver.beta0(beta0);
-    solver.gamma0(gamma0);
+    solver.alpha0(ALPHA0);
+    solver.beta0(BETA0);
+    solver.gamma0(GAMMA0);
 
-    solver.alpha1(alpha1);
-    solver.beta1(beta1);
-    solver.gamma1(gamma1);
+    solver.alpha1(ALPHA1);
+    solver.beta1(BETA1);
+    solver.gamma1(GAMMA1);
 
-    solver.x0(x0);
-    solver.x1(x1);
-    solver.elements(elements);
+    solver.x0(X0);
+    solver.x1(X1);
+    solver.elements(ELEMENTS);
 
     vector<array<double, 2>> points = solver.solve();
 
