@@ -1,5 +1,5 @@
-#include "solver.hpp"
-#include <iostream>
+#include "fem.hpp"
+#include "equsys.hpp"
 
 using namespace std;
 
@@ -17,25 +17,7 @@ static double integral(const func1d_t& func, double x0, double x1)
     return result;
 }
 
-point2d_t::point2d_t(double x, double y)
-    : _x(x)
-    , _y(y)
-{
-}
-
-point2d_t::point2d_t(const point2d_t& copy)
-        : _x(copy._x)
-        , _y(copy._y)
-{
-}
-
-double point2d_t::x() const { return _x; }
-
-double point2d_t::y() const { return _y; }
-
-string point2d_t::str() { return "(" + to_string(_x) + ", " + to_string(_y) + ")"; }
-
-mes_solver_t::mes_solver_t()
+fem_t::fem_t()
     : _a_func(make_shared<polynomial_t>(1.0))
     , _f_func(make_shared<polynomial_t>(-2.0))
     , _alpha0(0.0)
@@ -50,18 +32,15 @@ mes_solver_t::mes_solver_t()
 {
 }
 
-vector<point2d_t> mes_solver_t::solve() const
+vector<array<double, 2>> fem_t::solve() const
 {
     int nodes = this->nodes();
     double el_size = this->element_size();
 
-    vector<point2d_t> points(nodes);
+    vector<array<double, 2>> points(nodes);
     vector<shared_ptr<func1d_t>> funcs(nodes);
-    vector<vector<double>> stiffness(nodes);
-    for (int i = 0; i < nodes; ++i) {
-        stiffness[i].resize(nodes);
-    }
-    vector<double> load(nodes);
+
+    equsys_t equsys(nodes);
 
     double xa = _x0;
     double xb = xa + el_size;
@@ -91,10 +70,10 @@ vector<point2d_t> mes_solver_t::solve() const
         shared_ptr<func1d_t> stiffness12func = make_shared<product_t>(_a_func, shape1_dx, shape2_dx, ref_trans_dx);
         shared_ptr<func1d_t> stiffness22func = make_shared<product_t>(_a_func, shape2_dx, shape2_dx, ref_trans_dx);
 
-        stiffness[i][i] += integral(*stiffness11func, 0.0, 1.0);
-        stiffness[i][i + 1] += integral(*stiffness12func, 0.0, 1.0);
-        stiffness[i + 1][i] += integral(*stiffness12func, 0.0, 1.0);
-        stiffness[i + 1][i + 1] += integral(*stiffness22func, 0.0, 1.0);
+        equsys.inc(i, i, integral(*stiffness11func, 0.0, 1.0));
+        equsys.inc(i, i + 1, integral(*stiffness12func, 0.0, 1.0));
+        equsys.inc(i + 1, i, integral(*stiffness12func, 0.0, 1.0));
+        equsys.inc(i + 1, i + 1, integral(*stiffness22func, 0.0, 1.0));
 
         shared_ptr<func1d_t> load1fun = make_shared<product_t>(_f_func, ref_shape1, ref_trans_dx);
         shared_ptr<func1d_t> load2fun = make_shared<product_t>(_f_func, ref_shape2, ref_trans_dx);
@@ -102,57 +81,73 @@ vector<point2d_t> mes_solver_t::solve() const
         shared_ptr<func1d_t> shape1 = make_shared<composition_t>(ref_shape1, ref_trans_inv);
         shared_ptr<func1d_t> shape2 = make_shared<composition_t>(ref_shape2, ref_trans_inv);
 
-        load[i] += integral(*load1fun, 0.0, 1.0);
-        load[i + 1] += integral(*load2fun, 0.0, 1.0);
+        equsys.inc(i, integral(*load1fun, 0.0, 1.0));
+        equsys.inc(i + 1, integral(*load2fun, 0.0, 1.0));
 
         funcs[i] = shape1;
         funcs[i + 1] = shape1;
 
+        points[i][0] = xa;
+        points[i + 1][0] = xb;
         xa += el_size;
         xb += el_size;
 
         if (i == 0 && _alpha0 != 0.0) {
-            stiffness[i][i] += _a_func->func(_x0) * _beta0 / _alpha0 * shape1->func(_x0) * shape1->func(_x0);
-            load[i] += _a_func->func(_x0) * _gamma0 / _alpha0 * shape1->func(_x0);
+            equsys.inc(i, i, _a_func->func(_x0) * _beta0 / _alpha0 * shape1->func(_x0) * shape1->func(_x0));
+            equsys.inc(i, _a_func->func(_x0) * _gamma0 / _alpha0 * shape1->func(_x0));
         } else if (i == _elements - 1 && _alpha1 != 0.0) {
-            stiffness[i + 1][i + 1] += _a_func->func(_x1) * _beta1 / _alpha1 * shape2->func(_x1) * shape2->func(_x1);
-            load[i + 1] += _a_func->func(_x1) * _gamma1 / _alpha1 * shape2->func(_x1);
+            equsys.inc(i + 1, i + 1, _a_func->func(_x1) * _beta1 / _alpha1 * shape2->func(_x1) * shape2->func(_x1));
+            equsys.inc(i + 1, _a_func->func(_x1) * _gamma1 / _alpha1 * shape2->func(_x1));
         }
     }
 
-    for (int i = 0; i < nodes; ++i) {
-
-        for (int j = 0; j < nodes; ++j) {
-            cout << stiffness[i][j] << " ";
+    if (_alpha0 == 0.0) {
+        equsys.set(0, 0, 1);
+        for (int i = 1; i < nodes; ++i) {
+            equsys.set(0, i, 0);
         }
-        cout << "; " << load[i] << endl;
+        equsys.set(0, _gamma0 / _beta0);
+    }
+    if (_alpha1 == 0.0) {
+        int last = nodes = 1;
+        equsys.set(last, last, 1);
+        for (int i = 0; i < last; ++i) {
+            equsys.set(last, i, 0);
+        }
+        equsys.set(last, _gamma1 / _beta1);
+    }
+
+    vector<double> results = equsys.solve();
+
+    for (int i = 0; i < nodes; ++i) {
+        points[i][1] = results[i];
     }
 
     return points;
 }
 
-void mes_solver_t::a_func(shared_ptr<func1d_t> value) { _a_func = value; }
+void fem_t::a_func(shared_ptr<func1d_t> value) { _a_func = value; }
 
-void mes_solver_t::f_func(shared_ptr<func1d_t> value) { _f_func = value; }
+void fem_t::f_func(shared_ptr<func1d_t> value) { _f_func = value; }
 
-void mes_solver_t::alpha0(double value) { _alpha0 = value; }
+void fem_t::alpha0(double value) { _alpha0 = value; }
 
-void mes_solver_t::beta0(double value) { _beta0 = value; }
+void fem_t::beta0(double value) { _beta0 = value; }
 
-void mes_solver_t::gamma0(double value) { _gamma0 = value; }
+void fem_t::gamma0(double value) { _gamma0 = value; }
 
-void mes_solver_t::alpha1(double value) { _alpha1 = value; }
+void fem_t::alpha1(double value) { _alpha1 = value; }
 
-void mes_solver_t::beta1(double value) { _beta1 = value; }
+void fem_t::beta1(double value) { _beta1 = value; }
 
-void mes_solver_t::gamma1(double value) { _gamma1 = value; }
+void fem_t::gamma1(double value) { _gamma1 = value; }
 
-void mes_solver_t::x0(double value) { _x0 = value; }
+void fem_t::x0(double value) { _x0 = value; }
 
-void mes_solver_t::x1(double value) { _x1 = value; }
+void fem_t::x1(double value) { _x1 = value; }
 
-void mes_solver_t::elements(int value) { _elements = value; }
+void fem_t::elements(int value) { _elements = value; }
 
-int mes_solver_t::nodes() const { return _elements + 1; };
+int fem_t::nodes() const { return _elements + 1; };
 
-double mes_solver_t::element_size() const { return (_x1 - _x0) / _elements; };
+double fem_t::element_size() const { return (_x1 - _x0) / _elements; };

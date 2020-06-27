@@ -1,4 +1,6 @@
 #include "main.hpp"
+#include <iomanip>
+#include <iostream>
 
 using namespace std;
 
@@ -15,11 +17,11 @@ int main(int argc, char* argv[])
     double beta1 = 0.0;
     double gamma1 = 2.0;
 
-    int elements = 3;
+    int elements = 4;
     double x0 = 0.0;
     double x1 = 1.0;
 
-    mes_solver_t solver;
+    fem_t solver;
 
     solver.a_func(a_func);
     solver.f_func(f_func);
@@ -36,7 +38,11 @@ int main(int argc, char* argv[])
     solver.x1(x1);
     solver.elements(elements);
 
-    solver.solve();
+    vector<array<double, 2>> points = solver.solve();
+
+    for (int i = 0; i < points.size(); ++i) {
+        cout << setprecision(8) << fixed << points[i][0] << ";" << points[i][1] << endl;
+    }
 
     return 0;
 }

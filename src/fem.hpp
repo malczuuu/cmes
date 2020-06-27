@@ -2,25 +2,9 @@
 #define SOLVER_HPP
 
 #include "func1d.hpp"
+#include <array>
 
-class point2d_t {
-private:
-    double _x;
-    double _y;
-
-public:
-    point2d_t(double x = 0.0, double y = 0.0);
-
-    point2d_t(const point2d_t& copy);
-
-    double x() const;
-
-    double y() const;
-
-    std::string str();
-};
-
-class mes_solver_t {
+class fem_t {
 private:
     std::shared_ptr<func1d_t> _a_func;
     std::shared_ptr<func1d_t> _f_func;
@@ -35,9 +19,9 @@ private:
     int _elements;
 
 public:
-    mes_solver_t();
+    fem_t();
 
-    std::vector<point2d_t> solve() const;
+    std::vector<std::array<double, 2>> solve() const;
 
     void a_func(std::shared_ptr<func1d_t> value);
 
