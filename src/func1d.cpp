@@ -37,6 +37,8 @@ polynomial_t::polynomial_t(double param0, double param1)
     _params[1] = param1;
 }
 
+polynomial_t::polynomial_t(const polynomial_t & copy):_params(copy._params){}
+
 double polynomial_t::func(double x) const
 {
     double result = 0.0;
@@ -81,6 +83,8 @@ product_t::product_t(const shared_ptr<func1d_t>& func0, const shared_ptr<func1d_
     _funcs[3] = func3;
 }
 
+product_t::product_t(const product_t & copy) :_funcs(copy._funcs) {}
+
 double product_t::func(double x) const
 {
     double result = 1.0;
@@ -95,5 +99,7 @@ composition_t::composition_t(const shared_ptr<func1d_t>& outer, const shared_ptr
     , _inner(inner)
 {
 }
+
+composition_t::composition_t(const composition_t & copy):_outer(copy._outer),_inner(copy._inner) {}
 
 double composition_t::func(double x) const { return _outer->func(_inner->func(x)); }

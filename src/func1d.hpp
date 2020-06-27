@@ -34,6 +34,8 @@ public:
      */
     polynomial_t(double param0, double param1);
 
+    polynomial_t(const polynomial_t & copy);
+
     double func(double x) const override;
 };
 
@@ -55,6 +57,8 @@ public:
     product_t(const std::shared_ptr<func1d_t>& func0, const std::shared_ptr<func1d_t>& func1,
         const std::shared_ptr<func1d_t>& func2, const std::shared_ptr<func1d_t>& func3);
 
+    product_t(const product_t & copy);
+
     double func(double x) const override;
 };
 
@@ -68,6 +72,8 @@ private:
 
 public:
     composition_t(const std::shared_ptr<func1d_t>& outer, const std::shared_ptr<func1d_t>& inner);
+
+    composition_t(const composition_t & copy);
 
     double func(double x) const override;
 };
