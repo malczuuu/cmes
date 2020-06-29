@@ -63,6 +63,29 @@ public:
 };
 
 /**
+ * Class which represents the multiplication product of lots of other functions.
+ */
+class sum_func_t : public func1d_t {
+private:
+    std::vector<std::shared_ptr<func1d_t>> _funcs;
+
+public:
+    explicit sum_func_t(const std::shared_ptr<func1d_t>& func0);
+
+    sum_func_t(const std::shared_ptr<func1d_t>& func0, const std::shared_ptr<func1d_t>& func1);
+
+    sum_func_t(const std::shared_ptr<func1d_t>& func0, const std::shared_ptr<func1d_t>& func1,
+        const std::shared_ptr<func1d_t>& func2);
+
+    sum_func_t(const std::shared_ptr<func1d_t>& func0, const std::shared_ptr<func1d_t>& func1,
+        const std::shared_ptr<func1d_t>& func2, const std::shared_ptr<func1d_t>& func3);
+
+    sum_func_t(const sum_func_t& copy);
+
+    double func(double x) const override;
+};
+
+/**
  * Class which represents the composition of two functions outer(inner(x)).
  */
 class composition_t : public func1d_t {

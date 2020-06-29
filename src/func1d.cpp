@@ -55,21 +55,21 @@ double polynomial_t::func(double x) const
 }
 
 product_t::product_t(const shared_ptr<func1d_t>& func0)
-    : _funcs(1)
+        : _funcs(1)
 {
     _funcs[0] = func0;
 }
 
 product_t::product_t(const shared_ptr<func1d_t>& func0, const shared_ptr<func1d_t>& func1)
-    : _funcs(2)
+        : _funcs(2)
 {
     _funcs[0] = func0;
     _funcs[1] = func1;
 }
 
 product_t::product_t(
-    const shared_ptr<func1d_t>& func0, const shared_ptr<func1d_t>& func1, const shared_ptr<func1d_t>& func2)
-    : _funcs(3)
+        const shared_ptr<func1d_t>& func0, const shared_ptr<func1d_t>& func1, const shared_ptr<func1d_t>& func2)
+        : _funcs(3)
 {
     _funcs[0] = func0;
     _funcs[1] = func1;
@@ -77,8 +77,8 @@ product_t::product_t(
 }
 
 product_t::product_t(const shared_ptr<func1d_t>& func0, const shared_ptr<func1d_t>& func1,
-    const shared_ptr<func1d_t>& func2, const shared_ptr<func1d_t>& func3)
-    : _funcs(4)
+                     const shared_ptr<func1d_t>& func2, const shared_ptr<func1d_t>& func3)
+        : _funcs(4)
 {
     _funcs[0] = func0;
     _funcs[1] = func1;
@@ -87,7 +87,7 @@ product_t::product_t(const shared_ptr<func1d_t>& func0, const shared_ptr<func1d_
 }
 
 product_t::product_t(const product_t& copy)
-    : _funcs(copy._funcs)
+        : _funcs(copy._funcs)
 {
 }
 
@@ -96,6 +96,52 @@ double product_t::func(double x) const
     double result = 1.0;
     for (const shared_ptr<func1d_t>& func : _funcs) {
         result *= func->func(x);
+    }
+    return result;
+}
+
+sum_func_t::sum_func_t(const shared_ptr<func1d_t>& func0)
+        : _funcs(1)
+{
+    _funcs[0] = func0;
+}
+
+sum_func_t::sum_func_t(const shared_ptr<func1d_t>& func0, const shared_ptr<func1d_t>& func1)
+        : _funcs(2)
+{
+    _funcs[0] = func0;
+    _funcs[1] = func1;
+}
+
+sum_func_t::sum_func_t(
+        const shared_ptr<func1d_t>& func0, const shared_ptr<func1d_t>& func1, const shared_ptr<func1d_t>& func2)
+        : _funcs(3)
+{
+    _funcs[0] = func0;
+    _funcs[1] = func1;
+    _funcs[2] = func2;
+}
+
+sum_func_t::sum_func_t(const shared_ptr<func1d_t>& func0, const shared_ptr<func1d_t>& func1,
+                     const shared_ptr<func1d_t>& func2, const shared_ptr<func1d_t>& func3)
+        : _funcs(4)
+{
+    _funcs[0] = func0;
+    _funcs[1] = func1;
+    _funcs[2] = func2;
+    _funcs[3] = func3;
+}
+
+sum_func_t::sum_func_t(const sum_func_t& copy)
+        : _funcs(copy._funcs)
+{
+}
+
+double sum_func_t::func(double x) const
+{
+    double result = 0.0;
+    for (const shared_ptr<func1d_t>& func : _funcs) {
+        result += func->func(x);
     }
     return result;
 }
