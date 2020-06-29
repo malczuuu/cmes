@@ -7,6 +7,8 @@
 class fem_t {
 private:
     std::shared_ptr<func1d_t> _a_func;
+    std::shared_ptr<func1d_t> _b_func;
+    std::shared_ptr<func1d_t> _c_func;
     std::shared_ptr<func1d_t> _f_func;
     double _alpha0;
     double _beta0;
@@ -24,6 +26,10 @@ public:
     std::vector<std::array<double, 2>> solve() const;
 
     void a_func(std::shared_ptr<func1d_t> value);
+
+    void b_func(std::shared_ptr<func1d_t> value);
+
+    void c_func(std::shared_ptr<func1d_t> value);
 
     void f_func(std::shared_ptr<func1d_t> value);
 

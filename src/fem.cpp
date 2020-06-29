@@ -128,6 +128,10 @@ vector<array<double, 2>> fem_t::solve() const
 
 void fem_t::a_func(shared_ptr<func1d_t> value) { _a_func = value; }
 
+void fem_t::b_func(shared_ptr<func1d_t> value) { _b_func = value; }
+
+void fem_t::c_func(shared_ptr<func1d_t> value) { _c_func = value; }
+
 void fem_t::f_func(shared_ptr<func1d_t> value) { _f_func = value; }
 
 void fem_t::alpha0(double value) { _alpha0 = value; }
@@ -148,6 +152,6 @@ void fem_t::x1(double value) { _x1 = value; }
 
 void fem_t::elements(int value) { _elements = value; }
 
-int fem_t::nodes() const { return _elements + 1; };
+int fem_t::nodes() const { return _elements + 1; }
 
-double fem_t::element_size() const { return (_x1 - _x0) / _elements; };
+double fem_t::element_size() const { return (_x1 - _x0) / _elements; }

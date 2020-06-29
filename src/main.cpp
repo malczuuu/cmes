@@ -3,15 +3,15 @@
 #include <iostream>
 
 const double A = 1.0;
-const double F = 1.0;
+const double F = -2.0;
 
-const double ALPHA0 = 1.0;
+const double ALPHA0 = 0.0;
 const double BETA0 = 1.0;
 const double GAMMA0 = 1.0;
 
 const double ALPHA1 = 1.0;
-const double BETA1 = 1.0;
-const double GAMMA1 = 1.0;
+const double BETA1 = 0.0;
+const double GAMMA1 = 2.0;
 
 const int X0 = 0.0;
 const int X1 = 1.0;
@@ -23,11 +23,15 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     shared_ptr<func1d_t> a_func = make_shared<polynomial_t>(A);
+    shared_ptr<func1d_t> b_func = make_shared<polynomial_t>();
+    shared_ptr<func1d_t> c_func = make_shared<polynomial_t>();
     shared_ptr<func1d_t> f_func = make_shared<polynomial_t>(F);
 
     fem_t solver;
 
     solver.a_func(a_func);
+    solver.b_func(b_func);
+    solver.c_func(c_func);
     solver.f_func(f_func);
 
     solver.alpha0(ALPHA0);
